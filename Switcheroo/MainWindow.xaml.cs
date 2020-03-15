@@ -564,9 +564,15 @@ namespace Switcheroo
                 ForegroundWindowProcessTitle = new AppWindow(_foregroundWindow.HWnd).ProcessTitle
             };
 
-            var filterResults = new WindowFilterer().Filter(context, query).ToList();
+            var filterResults = new WindowFilterer().Filter(context, query);
 
-            foreach (var filterResult in filterResults)
+            if (! string.IsNullOrEmpty(query) && Settings.Default.MaximumResultCountEnabled)
+            {
+                filterResults = filterResults.Take(Settings.Default.MaximumResultCount);
+            }
+
+            var collectedResult = filterResults.ToList();
+            foreach (var filterResult in collectedResult)
             {
                 filterResult.AppWindow.FormattedTitle =
                     GetFormattedTitleFromBestResult(filterResult.WindowTitleMatchResults);
@@ -574,7 +580,7 @@ namespace Switcheroo
                     GetFormattedTitleFromBestResult(filterResult.ProcessTitleMatchResults);
             }
 
-            _filteredWindowList = new ObservableCollection<AppWindowViewModel>(filterResults.Select(r => r.AppWindow));
+            _filteredWindowList = new ObservableCollection<AppWindowViewModel>(collectedResult.Select(r => r.AppWindow));
             lb.DataContext = _filteredWindowList;
             if (lb.Items.Count > 0)
             {

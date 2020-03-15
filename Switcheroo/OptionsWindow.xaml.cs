@@ -67,6 +67,9 @@ namespace Switcheroo
             AutoSwitch.IsChecked = Settings.Default.AutoSwitch;
             AutoSwitch.IsEnabled = Settings.Default.AltTabHook;
             InstantReleaseSwitch.IsChecked = Settings.Default.InstantReleaseSwitch;
+            MaximumQueryResultCountCheckBox.IsChecked = Settings.Default.MaximumResultCountEnabled;
+            MaximumQueryResultCount.IsEnabled = (bool) MaximumQueryResultCountCheckBox.IsChecked;
+            MaximumQueryResultCount.Text = Settings.Default.MaximumResultCount.ToString();
             RunAsAdministrator.IsChecked = Settings.Default.RunAsAdmin;
         }
 
@@ -108,6 +111,14 @@ namespace Switcheroo
             Settings.Default.AltTabHook = AltTabCheckBox.IsChecked.GetValueOrDefault();
             Settings.Default.AutoSwitch = AutoSwitch.IsChecked.GetValueOrDefault();
             Settings.Default.InstantReleaseSwitch = InstantReleaseSwitch.IsChecked.GetValueOrDefault();
+            Settings.Default.MaximumResultCountEnabled = MaximumQueryResultCountCheckBox.IsChecked.GetValueOrDefault();
+
+            if (Settings.Default.MaximumResultCountEnabled &&
+                int.TryParse(MaximumQueryResultCount.Text, out var maximumResultCount))
+            {
+                Settings.Default.MaximumResultCount = maximumResultCount;
+            }
+
             Settings.Default.RunAsAdmin = RunAsAdministrator.IsChecked.GetValueOrDefault();
             Settings.Default.Save();
 
@@ -127,9 +138,9 @@ namespace Switcheroo
 
             // Ignore modifier keys
             if (key == Key.LeftShift || key == Key.RightShift
-                || key == Key.LeftCtrl || key == Key.RightCtrl
-                || key == Key.LeftAlt || key == Key.RightAlt
-                || key == Key.LWin || key == Key.RWin)
+                                     || key == Key.LeftCtrl || key == Key.RightCtrl
+                                     || key == Key.LeftAlt || key == Key.RightAlt
+                                     || key == Key.LWin || key == Key.RWin)
             {
                 return;
             }
@@ -244,6 +255,48 @@ namespace Switcheroo
         private void HotKeyCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
         {
             HotkeyPreview.IsEnabled = false;
+        }
+
+        private void MaximumQueryResultCountValidation(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = ! IsValidMaximumResultCountInput(e.Text);
+        }
+
+        private void MaximumQueryResultCountPasteValidation(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                var text = (string) e.DataObject.GetData(format: typeof(string));
+
+                if (! this.IsValidMaximumResultCountInput(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+        
+        private void MaximumQueryResultCountCheckBox_OnChecked(object sender, RoutedEventArgs e)
+        {
+            MaximumQueryResultCount.IsEnabled = true;
+        }
+
+        private void MaximumQueryResultCountCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            MaximumQueryResultCount.IsEnabled = false;
+        }
+
+        private bool IsValidMaximumResultCountInput(string input)
+        {
+            if (int.TryParse(input, out var number))
+            {
+                return number > 0;
+            }
+
+            return false;
         }
     }
 }
