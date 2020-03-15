@@ -66,6 +66,7 @@ namespace Switcheroo
             AltTabCheckBox.IsChecked = Settings.Default.AltTabHook;
             AutoSwitch.IsChecked = Settings.Default.AutoSwitch;
             AutoSwitch.IsEnabled = Settings.Default.AltTabHook;
+            InstantReleaseSwitch.IsChecked = Settings.Default.InstantReleaseSwitch;
             RunAsAdministrator.IsChecked = Settings.Default.RunAsAdmin;
         }
 
@@ -106,6 +107,7 @@ namespace Switcheroo
             Settings.Default.EnableHotKey = HotKeyCheckBox.IsChecked.GetValueOrDefault();
             Settings.Default.AltTabHook = AltTabCheckBox.IsChecked.GetValueOrDefault();
             Settings.Default.AutoSwitch = AutoSwitch.IsChecked.GetValueOrDefault();
+            Settings.Default.InstantReleaseSwitch = InstantReleaseSwitch.IsChecked.GetValueOrDefault();
             Settings.Default.RunAsAdmin = RunAsAdministrator.IsChecked.GetValueOrDefault();
             Settings.Default.Save();
 
